@@ -1,0 +1,107 @@
+"use client";
+
+import { useState } from "react";
+import { worshipContent } from "@/lib/data/worship";
+
+const { prayerWall } = worshipContent;
+
+export function GlobalPrayerWall() {
+  const [name, setName] = useState("");
+  const [request, setRequest] = useState("");
+
+  return (
+    <section className="bg-white py-20 sm:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-14">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-blue">
+            {prayerWall.eyebrow}
+          </p>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-navy sm:text-4xl">
+            {prayerWall.title}
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-muted">
+            {prayerWall.description}
+          </p>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="rounded-2xl border border-[#e8ecf2] bg-[#f7f9fc] p-6 sm:p-8">
+            <h3 className="font-display text-xl font-bold text-navy">
+              Submit Prayer Request
+            </h3>
+            <form
+              className="mt-6 space-y-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setName("");
+                setRequest("");
+              }}
+            >
+              <div>
+                <label htmlFor="prayer-name" className="sr-only">
+                  Your Name
+                </label>
+                <input
+                  id="prayer-name"
+                  type="text"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Your Name"
+                  className="w-full rounded-xl border border-[#dde3ee] bg-white px-4 py-3 text-sm text-navy outline-none placeholder:text-muted/70 focus:border-blue"
+                />
+              </div>
+              <div>
+                <label htmlFor="prayer-request" className="sr-only">
+                  Your Request
+                </label>
+                <textarea
+                  id="prayer-request"
+                  value={request}
+                  onChange={(event) => setRequest(event.target.value)}
+                  placeholder="Your Request"
+                  rows={5}
+                  className="w-full resize-none rounded-xl border border-[#dde3ee] bg-white px-4 py-3 text-sm text-navy outline-none placeholder:text-muted/70 focus:border-blue"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-blue px-5 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#1749d6]"
+              >
+                Post to Prayer Wall
+              </button>
+            </form>
+          </div>
+
+          <div>
+            <h3 className="font-display text-xl font-bold text-navy">
+              Recent community requests
+            </h3>
+            <ul className="mt-6 space-y-4">
+              {prayerWall.requests.map((item) => (
+                <li
+                  key={`${item.name}-${item.time}`}
+                  className="rounded-2xl border border-[#e8ecf2] bg-white p-5"
+                >
+                  <p className="text-sm leading-relaxed text-navy/90">
+                    &ldquo;{item.text}&rdquo;
+                  </p>
+                  <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted">
+                    <p>
+                      {item.name} · {item.location} · {item.time}
+                    </p>
+                    <p className="inline-flex items-center gap-1 font-semibold text-blue">
+                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current" aria-hidden>
+                        <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" />
+                      </svg>
+                      {item.praying} praying
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
