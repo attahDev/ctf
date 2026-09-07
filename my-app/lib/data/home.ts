@@ -16,15 +16,13 @@ export const connectWays = [
   },
   {
     title: "Bible Class",
-    description:
-      "Deep dive into scripture with mid-week interactive classes.",
+    description: "Deep dive into scripture with mid-week interactive classes.",
     href: "/sermons",
     icon: "book" as const,
   },
   {
     title: "Mentorship",
-    description:
-      "One-on-one personal guidance for your spiritual journey.",
+    description: "One-on-one personal guidance for your spiritual journey.",
     href: "/about",
     icon: "person" as const,
   },
@@ -242,5 +240,9 @@ export const churchInfo = {
   prayerLine: "+44 (0) 20 8123 4567 (24/7)",
   email: "hello@glorytime.church",
   nextServiceLabel: "Sunday 10:00 AM",
-  nextServiceAt: "2026-09-07T10:00:00",
+  serviceWeekday: 0,
+  serviceHour: 10,
+  serviceMinute: 0,
+  serviceTimeZoneOffsetHours: 1,
+  // nextServiceAt: "2026-09-07T10:00:00+01:00",
 };

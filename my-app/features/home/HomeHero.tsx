@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { EventCountdown } from "@/features/home/EventCountdown";
 
 function PlayIcon() {
@@ -47,11 +48,8 @@ export function HomeHero() {
       <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(8,12,28,0.88)_0%,rgba(10,16,40,0.72)_45%,rgba(12,20,48,0.55)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(30,94,255,0.28),transparent_45%),radial-gradient(ellipse_at_top,rgba(123,77,255,0.18),transparent_40%)]" />
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-7.5rem)] max-w-7xl flex-col justify-center px-4 pb-36 pt-16 sm:px-6 lg:px-8">
-        <div className="mb-5 flex items-center gap-2.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-gold shadow-[0_0_12px_rgba(245,166,35,0.8)]" />
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-sky sm:text-sm">
-            Glory Time Christian Center
-          </p>
+        <div className="mb-5">
+          <Eyebrow className="text-sky">Glory Time Christian Center</Eyebrow>
         </div>
         <h1 className="max-w-4xl font-display text-5xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-[5.25rem]">
           Worship Without Walls

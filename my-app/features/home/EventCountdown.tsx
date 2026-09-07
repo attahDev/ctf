@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { churchInfo } from "@/lib/data/home";
 
 type TimeLeft = {
@@ -10,8 +10,55 @@ type TimeLeft = {
   secs: number;
 };
 
-function getTimeLeft(target: string): TimeLeft {
-  const diff = Math.max(0, new Date(target).getTime() - Date.now());
+function getNextServiceMs(
+  now: number,
+  weekday: number,
+  hour: number,
+  minute: number,
+  offsetHours: number,
+): number {
+  const offsetMs = offsetHours * 60 * 60 * 1000;
+  const local = new Date(now + offsetMs);
+  const day = local.getUTCDay();
+  const localMinutes = local.getUTCHours() * 60 + local.getUTCMinutes();
+  const serviceMinutes = hour * 60 + minute;
+
+  let daysAhead = (weekday - day + 7) % 7;
+  if (daysAhead === 0 && localMinutes >= serviceMinutes) {
+    daysAhead = 7;
+  }
+
+  const targetLocalUtc = Date.UTC(
+    local.getUTCFullYear(),
+    local.getUTCMonth(),
+    local.getUTCDate() + daysAhead,
+    hour,
+    minute,
+    0,
+    0,
+  );
+
+  return targetLocalUtc - offsetMs;
+}
+
+let cachedTargetMs = 0;
+
+function getCachedNextServiceMs(now: number): number {
+  if (now === 0) return 0;
+  if (cachedTargetMs > now) return cachedTargetMs;
+
+  cachedTargetMs = getNextServiceMs(
+    now,
+    churchInfo.serviceWeekday,
+    churchInfo.serviceHour,
+    churchInfo.serviceMinute,
+    churchInfo.serviceTimeZoneOffsetHours,
+  );
+  return cachedTargetMs;
+}
+
+function getTimeLeft(targetMs: number, now: number): TimeLeft {
+  const diff = Math.max(0, targetMs - now);
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
   const mins = Math.floor((diff / (1000 * 60)) % 60);
@@ -23,17 +70,31 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-export function EventCountdown() {
-  const [time, setTime] = useState<TimeLeft>(() =>
-    getTimeLeft(churchInfo.nextServiceAt),
-  );
+const ZERO_TIME: TimeLeft = { days: 0, hours: 0, mins: 0, secs: 0 };
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      setTime(getTimeLeft(churchInfo.nextServiceAt));
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
+let nowSnapshot = 0;
+
+function subscribe(onStoreChange: () => void) {
+  nowSnapshot = Date.now();
+  const id = setInterval(() => {
+    nowSnapshot = Date.now();
+    onStoreChange();
+  }, 1000);
+  return () => clearInterval(id);
+}
+
+function getNow() {
+  return nowSnapshot;
+}
+
+function getServerNow() {
+  return 0;
+}
+
+export function EventCountdown() {
+  const now = useSyncExternalStore(subscribe, getNow, getServerNow);
+  const time = now === 0 ? ZERO_TIME : getTimeLeft(getCachedNextServiceMs(now), now);
+
 
   const units = [
     { label: "Days", value: time.days },
