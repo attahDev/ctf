@@ -5,6 +5,9 @@ import { GrowthPath } from "@/features/connect/GrowthPath";
 import { NewsletterCta } from "@/features/connect/NewsletterCta";
 import { SocialFeed } from "@/features/connect/SocialFeed";
 import { TribeGroups } from "@/features/connect/TribeGroups";
+import { TribeJoinForm } from "@/features/connect/TribeJoinForm";
+import { VolunteerForm } from "@/features/connect/VolunteerForm";
+import { BibleClassForm } from "@/features/connect/BibleClassForm";
 import { VisitInPerson } from "@/features/connect/VisitInPerson";
 import { connectContent } from "@/lib/data/connect";
 
@@ -20,6 +23,9 @@ export default function ConnectPage() {
       <VisitInPerson />
       <ContactAndCare />
       <TribeGroups />
+      <TribeJoinForm />
+      <VolunteerForm />
+      <BibleClassForm />
       <GrowthPath />
       <SocialFeed />
       <NewsletterCta />

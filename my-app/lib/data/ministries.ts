@@ -41,7 +41,7 @@ export const ministriesContent = {
         ],
   
         primaryCta: "REGISTER FOR CLASS",
-        primaryCtaHref: "/contact",
+        primaryCtaHref: "/contact#bible-class",
         cohortNotice: "Next cohort starts: Sept 12",
       },
 
@@ -77,9 +77,9 @@ export const ministriesContent = {
   
         actions: {
           primary: "JOIN A TRIBE",
-          primaryHref: "/contact",
+          primaryHref: "/contact#tribe-join",
           secondary: "BECOME A MENTOR",
-          secondaryHref: "/contact",
+          secondaryHref: "/contact#tribe-join",
         },
       },
 
@@ -231,7 +231,7 @@ export const ministriesContent = {
         "Glory Time operates through the faithful, joyful stewardship of hundreds of volunteers. Whether your skill is media, teaching, hospitality, or welfare, you have a vital part to play.",
   
       cta: "SIGN UP TO VOLUNTEER",
-      ctaHref: "/contact",
+      ctaHref: "/contact#volunteer",
     },
 
   } as const;

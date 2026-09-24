@@ -1,13 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { apiPost } from "@/lib/api";
 import { worshipContent } from "@/lib/data/worship";
 
 const { prayerWall } = worshipContent;
 
+type Status = "idle" | "submitting" | "success" | "error";
+
 export function GlobalPrayerWall() {
   const [name, setName] = useState("");
   const [request, setRequest] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setStatus("submitting");
+    setErrorMessage("");
+
+    const result = await apiPost("/prayer-requests", {
+      name: name || "Anonymous",
+      request_text: request,
+    });
+
+    if (result.ok) {
+      setStatus("success");
+      setName("");
+      setRequest("");
+    } else {
+      setStatus("error");
+      setErrorMessage(result.error);
+    }
+  };
 
   return (
     <section className="bg-white py-20 sm:py-28">
@@ -29,47 +54,54 @@ export function GlobalPrayerWall() {
             <h3 className="font-display text-xl font-bold text-navy">
               Submit Prayer Request
             </h3>
-            <form
-              className="mt-6 space-y-4"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setName("");
-                setRequest("");
-              }}
-            >
-              <div>
-                <label htmlFor="prayer-name" className="sr-only">
-                  Your Name
-                </label>
-                <input
-                  id="prayer-name"
-                  type="text"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Your Name"
-                  className="w-full rounded-xl border border-[#dde3ee] bg-white px-4 py-3 text-sm text-navy outline-none placeholder:text-muted/70 focus:border-blue"
-                />
-              </div>
-              <div>
-                <label htmlFor="prayer-request" className="sr-only">
-                  Your Request
-                </label>
-                <textarea
-                  id="prayer-request"
-                  value={request}
-                  onChange={(event) => setRequest(event.target.value)}
-                  placeholder="Your Request"
-                  rows={5}
-                  className="w-full resize-none rounded-xl border border-[#dde3ee] bg-white px-4 py-3 text-sm text-navy outline-none placeholder:text-muted/70 focus:border-blue"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full rounded-xl bg-blue px-5 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#1749d6]"
-              >
-                Post to Prayer Wall
-              </button>
-            </form>
+
+            {status === "success" ? (
+              <p className="mt-6 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                Your request has been received. Our team is praying with you.
+              </p>
+            ) : (
+              <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+                <div>
+                  <label htmlFor="prayer-name" className="sr-only">
+                    Your Name
+                  </label>
+                  <input
+                    id="prayer-name"
+                    type="text"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="Your Name"
+                    className="w-full rounded-xl border border-[#dde3ee] bg-white px-4 py-3 text-sm text-navy outline-none placeholder:text-muted/70 focus:border-blue"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="prayer-request" className="sr-only">
+                    Your Request
+                  </label>
+                  <textarea
+                    id="prayer-request"
+                    value={request}
+                    onChange={(event) => setRequest(event.target.value)}
+                    placeholder="Your Request"
+                    required
+                    rows={5}
+                    className="w-full resize-none rounded-xl border border-[#dde3ee] bg-white px-4 py-3 text-sm text-navy outline-none placeholder:text-muted/70 focus:border-blue"
+                  />
+                </div>
+
+                {status === "error" && (
+                  <p className="text-sm font-medium text-red-600">{errorMessage}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className="w-full rounded-xl bg-blue px-5 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#1749d6] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {status === "submitting" ? "Submitting..." : "Post to Prayer Wall"}
+                </button>
+              </form>
+            )}
           </div>
 
           <div>

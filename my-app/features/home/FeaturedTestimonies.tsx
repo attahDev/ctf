@@ -1,8 +1,35 @@
 import Image from "next/image";
-import { testimonies } from "@/lib/data/home";
+import { apiGet } from "@/lib/api";
+import { testimonies as fallbackTestimonies } from "@/lib/data/home";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
-export function FeaturedTestimonies() {
+type ApiTestimony = {
+  name: string;
+  role: string;
+  quote: string;
+  image_url: string;
+};
+
+type DisplayTestimony = {
+  name: string;
+  role: string;
+  quote: string;
+  image: string;
+};
+
+export async function FeaturedTestimonies() {
+  const apiTestimonies = await apiGet<ApiTestimony[]>("/testimonies?featured_only=true", []);
+
+  const testimonies: DisplayTestimony[] =
+    apiTestimonies.length > 0
+      ? apiTestimonies.map((t) => ({
+          name: t.name,
+          role: t.role,
+          quote: t.quote,
+          image: t.image_url || fallbackTestimonies[0]?.image,
+        }))
+      : fallbackTestimonies;
+
   return (
     <section className="bg-navy py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

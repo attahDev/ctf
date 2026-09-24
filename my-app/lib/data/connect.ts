@@ -193,7 +193,7 @@ export const connectContent = {
           "Small groups are the heartbeat of Glory Time. They are friendly, informal environments where you can make genuine friends, study the word, and grow spiritually.",
         badge: "TRIBE GROUP",
         cta: "REQUEST TO JOIN",
-        ctaHref: "/contact#message",
+        ctaHref: "/contact#tribe-join",
         groups: [
           {
             title: "Tribe Mentorship Men",

@@ -1,6 +1,28 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import { events } from "@/lib/data/home";
+import { apiGet } from "@/lib/api";
+import { events as fallbackEvents } from "@/lib/data/home";
+
+type ApiEvent = {
+  title: string;
+  slug: string;
+  day: string;
+  month: string;
+  time_display: string;
+  location: string;
+  summary: string;
+  image_url: string;
+};
+
+type DisplayEvent = {
+  title: string;
+  day: string;
+  month: string;
+  time: string;
+  location: string;
+  summary: string;
+  image: string;
+};
 
 function ClockIcon() {
   return (
@@ -26,7 +48,22 @@ function CalendarIcon() {
   );
 }
 
-export function UpcomingEvents() {
+export async function UpcomingEvents() {
+  const apiEvents = await apiGet<ApiEvent[]>("/events", []);
+
+  const events: DisplayEvent[] =
+    apiEvents.length > 0
+      ? apiEvents.map((e) => ({
+          title: e.title,
+          day: e.day,
+          month: e.month,
+          time: e.time_display,
+          location: e.location,
+          summary: e.summary,
+          image: e.image_url || fallbackEvents[0]?.image,
+        }))
+      : fallbackEvents;
+
   return (
     <section className="bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
