@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/portal/events", label: "Events" },
   { href: "/portal/reading-plan", label: "Bible Reading Plan" },
   { href: "/portal/certificates", label: "Certificates" },
+  { href: "/portal/profile", label: "Profile" },
 ];
 
 export default function PortalProtectedLayout({ children }: { children: ReactNode }) {

@@ -1,18 +1,34 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { apiPost } from "@/lib/api";
 import { worshipContent } from "@/lib/data/worship";
 
 const { prayerWall } = worshipContent;
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
 type Status = "idle" | "submitting" | "success" | "error";
+
+type WallEntry = {
+  name: string;
+  request_text: string;
+  created_at: string;
+};
 
 export function GlobalPrayerWall() {
   const [name, setName] = useState("");
   const [request, setRequest] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [wallEntries, setWallEntries] = useState<WallEntry[] | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/prayer-wall`)
+      .then((res) => res.json())
+      .then((data: WallEntry[]) => setWallEntries(data))
+      .catch(() => setWallEntries([]));
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -109,25 +125,30 @@ export function GlobalPrayerWall() {
               Recent community requests
             </h3>
             <ul className="mt-6 space-y-4">
-              {prayerWall.requests.map((item) => (
+              {(wallEntries && wallEntries.length > 0
+                ? wallEntries.map((item) => ({
+                    key: `${item.name}-${item.created_at}`,
+                    text: item.request_text,
+                    name: item.name || "Anonymous",
+                    meta: new Date(item.created_at).toLocaleDateString(),
+                  }))
+                : prayerWall.requests.map((item) => ({
+                    key: `${item.name}-${item.time}`,
+                    text: item.text,
+                    name: item.name,
+                    meta: `${item.location} · ${item.time}`,
+                  }))
+              ).map((item) => (
                 <li
-                  key={`${item.name}-${item.time}`}
+                  key={item.key}
                   className="rounded-2xl border border-[#e8ecf2] bg-white p-5"
                 >
                   <p className="text-sm leading-relaxed text-navy/90">
                     &ldquo;{item.text}&rdquo;
                   </p>
-                  <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted">
-                    <p>
-                      {item.name} · {item.location} · {item.time}
-                    </p>
-                    <p className="inline-flex items-center gap-1 font-semibold text-blue">
-                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current" aria-hidden>
-                        <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" />
-                      </svg>
-                      {item.praying} praying
-                    </p>
-                  </div>
+                  <p className="mt-4 text-xs text-muted">
+                    {item.name} · {item.meta}
+                  </p>
                 </li>
               ))}
             </ul>

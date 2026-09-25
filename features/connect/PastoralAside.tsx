@@ -39,6 +39,9 @@ export const PastoralAside = () => (
           </a>
         </p>
       </div>
+      <a href="#counselling" className="mt-3 inline-block text-sm font-semibold text-sky underline">
+        Prefer to request online instead?
+      </a>
     </article>
     <article className="flex items-center gap-4 rounded-2xl bg-navy px-6 py-5 sm:px-7 sm:py-6">
       <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10">

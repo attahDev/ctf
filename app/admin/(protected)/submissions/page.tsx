@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/adminApi";
 
-type Kind = "contact" | "prayer-requests" | "newsletter" | "volunteer" | "bible-class" | "tribe-join";
+type Kind =
+  | "contact"
+  | "prayer-requests"
+  | "newsletter"
+  | "volunteer"
+  | "bible-class"
+  | "tribe-join"
+  | "counselling";
 
 type Column = { key: string; label: string };
 
@@ -11,6 +18,7 @@ type KindConfig = {
   label: string;
   columns: Column[];
   statusOptions: string[] | null; // null = no status field (newsletter)
+  showWallToggle?: boolean; // prayer-requests only
 };
 
 const KIND_CONFIG: Record<Kind, KindConfig> = {
@@ -30,8 +38,10 @@ const KIND_CONFIG: Record<Kind, KindConfig> = {
       { key: "name", label: "Name" },
       { key: "email", label: "Email" },
       { key: "request_text", label: "Request" },
+      { key: "is_private", label: "Private" },
     ],
     statusOptions: ["new", "praying", "followed_up"],
+    showWallToggle: true,
   },
   newsletter: {
     label: "Newsletter",
@@ -67,6 +77,16 @@ const KIND_CONFIG: Record<Kind, KindConfig> = {
       { key: "tribe_preference", label: "Tribe" },
     ],
     statusOptions: ["new", "matched", "closed"],
+  },
+  counselling: {
+    label: "Counselling",
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "preferred_format", label: "Format" },
+      { key: "message", label: "Message" },
+    ],
+    statusOptions: ["new", "scheduled", "closed"],
   },
 };
 
@@ -113,6 +133,18 @@ export default function AdminSubmissionsPage() {
     }
   };
 
+  const handleWallToggle = async (id: number, status: string, showOnWall: boolean) => {
+    try {
+      await adminFetch(`/admin/submissions/${activeKind}/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status, show_on_wall: showOnWall }),
+      });
+      await load(activeKind);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update wall visibility");
+    }
+  };
+
   return (
     <div>
       <h1 className="font-display text-2xl font-bold text-navy">Submissions</h1>
@@ -147,18 +179,25 @@ export default function AdminSubmissionsPage() {
               ))}
               <th className="px-4 py-3">Received</th>
               {config.statusOptions && <th className="px-4 py-3">Status</th>}
+              {config.showWallToggle && <th className="px-4 py-3">Show on Wall</th>}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td className="px-4 py-6 text-muted" colSpan={config.columns.length + 2}>
+                <td
+                  className="px-4 py-6 text-muted"
+                  colSpan={config.columns.length + 2 + (config.showWallToggle ? 1 : 0)}
+                >
                   Loading...
                 </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td className="px-4 py-6 text-muted" colSpan={config.columns.length + 2}>
+                <td
+                  className="px-4 py-6 text-muted"
+                  colSpan={config.columns.length + 2 + (config.showWallToggle ? 1 : 0)}
+                >
                   No submissions yet.
                 </td>
               </tr>
@@ -190,6 +229,24 @@ export default function AdminSubmissionsPage() {
                           </option>
                         ))}
                       </select>
+                    </td>
+                  )}
+                  {config.showWallToggle && (
+                    <td className="px-4 py-3">
+                      {item.is_private ? (
+                        <span className="text-xs text-muted">Private — hidden</span>
+                      ) : (
+                        <label className="inline-flex items-center gap-2 text-sm text-navy">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(item.show_on_wall)}
+                            onChange={(event) =>
+                              handleWallToggle(item.id, item.status, event.target.checked)
+                            }
+                          />
+                          Visible
+                        </label>
+                      )}
                     </td>
                   )}
                 </tr>
